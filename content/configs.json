@@ -1,0 +1,24 @@
+{
+  "globalRoutes": {
+    "/start" : {
+      "responce": {
+        "text": "Send me /get command!",
+        "keyboard": []
+      },
+      "forEval": "new SendMessageHandlerClass($chatId, $responce);"
+    },
+    "/debug" : {
+      "forEval": "new DebuggingHandlerClass($chatId, $handler->databaseConection);"
+    }
+  },
+  "globalExceptionRoute": {
+    "responce": {
+      "text": "I dont understand you.. Please send me /help",
+      "keyboard": []
+    }
+  },
+  "database": {
+    "name": "j77441610_niiktin-debugging-bot",
+    "tableNameForNextEntry": "tableForNextEntry"
+  }
+}
