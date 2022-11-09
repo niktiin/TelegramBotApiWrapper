@@ -3,7 +3,11 @@
     "/start" : {
       "responce": {
         "text": "Send me /get command!",
-        "keyboard": [["/start"], ["/help"], ["/get"]]
+        "keyboard": [["/start"], ["/help"], ["/get"]],
+        "content": {
+          "type": "photo",
+          "url": "https://copyfx4.com/wp-content/uploads/2022/07/file-127.jpg"
+        }
       },
       "forEval": "new SendMessageHandlerClass($chatId, $responce);"
     },
