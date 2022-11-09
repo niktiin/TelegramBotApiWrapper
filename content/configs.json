@@ -7,18 +7,29 @@
       },
       "forEval": "new SendMessageHandlerClass($chatId, $responce);"
     },
+    "/tap" : {
+      "responce": {
+        "text": "You tap one times...",
+        "keyboard": [{"text": "tap"}]
+      },
+      "nextEntryName": "twoTapEntry",
+      "forEval": "new SendMessageHandlerClass($chatId, $responce);"
+    },
     "/debug" : {
       "forEval": "new DebuggingHandlerClass($chatId, $handler->databaseConection);"
     }
   },
-  "globalExceptionRoute": {
-    "responce": {
-      "text": "I dont understand you.. Please send me /help",
-      "keyboard": []
+  "nextEntries": {
+    "twoTapEntry": {
+      "responce": {
+        "text": "You tap two times!",
+        "keyboard": []
+      },
+      "forEval": "new SendMessageHandlerClass($chatId, $responce);"
     }
   },
   "database": {
     "name": "j77441610_niiktin-debugging-bot",
-    "tableNameForNextEntry": "tableForNextEntry"
+    "tableNameForNextEntry": "tablefornextentry"
   }
 }

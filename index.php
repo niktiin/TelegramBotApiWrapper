@@ -14,6 +14,7 @@ $GLOBALS['pathToConfigsFileName'] = 'content/configs.json';
 try {
     // App life cycle
     $handler = new Handler;
+    $handler->checkNextEntry() && die();
     $handler->catchTextMessage();
 } catch (Exception $e) {
     # HANDLE EXCEPTION, THIS EXAMPLE PRINTED EXCEPTION TO CHAT

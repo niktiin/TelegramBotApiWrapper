@@ -1,8 +1,13 @@
 <?php
+
+  $files = glob('handlers/*.php');
+  foreach ($files as $file) {
+      require_once($file);
+  }
   require_once('handlers/SendMessageHandlerClass.php');
   require_once('handlers/DebuggingHandlerClass.php');
   class Handler {
-    private $configs, $pass, $contents, $message, $text, $databaseConection;
+    private $configs, $pass, $contents, $message, $text, $databaseConection, $tableNameForNextEntry;
     public $chatId;
     public function __construct() {
       $this->configs = json_decode(file_get_contents($GLOBALS['pathToConfigsFileName']), true);
@@ -53,18 +58,41 @@
       if ($checkDatabaseIsExistsResult->num_rows < 1) {
         throw new Exception("Ошибка подключения: База данных не установлена!");
       }
+      $this->databaseConection->select_db($databaseName);
       // Создать таблицу для вхождений
-      $tableNameForNextEntry = $this->configs['database']['tableNameForNextEntry'];
-      $this->createTableForIfNotExists($tableNameForNextEntry);
+      $this->tableNameForNextEntry = $this->configs['database']['tableNameForNextEntry'];
+      $this->createTableForIfNotExists($this->tableNameForNextEntry);
     }
     /**
      * Создать таблицу для вхождений если она не существует
      */
     private function createTableForIfNotExists($tableName) {
-      $databaseName = $this->configs['database']['name'];
-      $query = "CREATE TABLE IF NOT EXISTS `$databaseName`.`$tableName` ( `index` INT NOT NULL AUTO_INCREMENT , `chatId` VARCHAR(16) NOT NULL , `nextEntryData` JSON NOT NULL , PRIMARY KEY (`index`)) ENGINE = InnoDB";
+      $query = "CREATE TABLE IF NOT EXISTS `$tableName` ( `index` INT NOT NULL AUTO_INCREMENT , `chatId` VARCHAR(16) NOT NULL , `nextEntryData` JSON NOT NULL , PRIMARY KEY (`index`), UNIQUE `UNIQUE` (`chatId`)) ENGINE = InnoDB";
       $this->databaseConection->query($query);
     }
+    /**
+     * Добавить вхождение в базу данных
+     * Перезаписать если повторяется
+     */
+    private function pushNextEntryToDatabase($nextEntryName) {
+      $nextEntry = json_encode($this->configs['nextEntries'][$nextEntryName]);
+      $tableNameForNextEntry = $this->tableNameForNextEntry;
+      $chatId = $this->chatId;
+      $query = "INSERT INTO `$tableNameForNextEntry`(`chatId`, `nextEntryData`) VALUES ('$chatId', '$nextEntry') ON DUPLICATE KEY UPDATE `nextEntryData` = '$nextEntry'";
+      $queryResult = $this->databaseConection->query($query);
+    }
+    /**
+     * Выполнить код
+     */
+    private function evalHandler($evalString, $responce) {
+      $chatId = $this->chatId;
+      eval($evalString);
+    }
+    /**
+     * Основной блок приложения
+     * Найти обьект маршрута
+     * Выполнить код
+     */
     public function catchTextMessage() {
       // Получить ключи валидных маршрутов
       $availableRoute = [];
@@ -73,12 +101,35 @@
       }
       $routeIndex = array_search($this->text, $availableRoute);
       $routeIndex === false && $this->handleExceptionTextMessage();
-      // Найти обьект маршрута и выпонить заданный код
+      // Найти обьект маршрута
       $routeKey = array_keys($this->configs['globalRoutes'])[array_search($this->text, $availableRoute)];
-      $chatId = $this->chatId;
+      $nextEntryName = $this->configs['globalRoutes'][$routeKey]['nextEntryName'];
+      isset($nextEntryName) && $this->pushNextEntryToDatabase($nextEntryName);
+      // выпонить заданный код
       $responce = $this->configs['globalRoutes'][$routeKey]['responce'];
-      $handler = $this;
-      eval($this->configs['globalRoutes'][$routeKey]['forEval']);
+      $evalString = $this->configs['globalRoutes'][$routeKey]['forEval'];
+      $this->evalHandler($evalString, $responce);
+    }
+    /**
+     * Найти вхождение
+     * Выполнить код вхождения
+     * Удалить вхождение
+     */
+    public function checkNextEntry() {
+      $chatId = $this->chatId;
+      $tableNameForNextEntry = $this->tableNameForNextEntry;
+      $query = "SELECT * FROM `$tableNameForNextEntry` WHERE `chatId` = '$chatId'";
+      $queryResult = $this->databaseConection->query($query);
+      if ($queryResult->num_rows < 1) return false;
+      $nextEntry = json_decode($queryResult->fetch_assoc()['nextEntryData'], true);
+      // Выполнить код вхождения
+      $responce = $nextEntry['responce'];
+      $evalString = $nextEntry['forEval'];
+      $this->evalHandler($evalString, $responce);
+      // Удалить вхождение из базы данных
+      $query = "DELETE FROM `tablefornextentry` WHERE `chatId` = '$chatId'";
+      $this->databaseConection->query($query);
+      return true;
     }
   }
 ?>
