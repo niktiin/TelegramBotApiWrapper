@@ -10,7 +10,7 @@
     "/tap" : {
       "responce": {
         "text": "You tap one times...",
-        "keyboard": [{"text": "tap"}]
+        "keyboard": [[{"text": "tap"}]]
       },
       "nextEntryName": "twoTapEntry",
       "forEval": "new SendMessageHandlerClass($chatId, $responce);"
