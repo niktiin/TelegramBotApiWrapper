@@ -33,11 +33,10 @@
      * обработчик не нашёл подходящий маршрут
      */
     private function handleExceptionTextMessage() {
-      $options = [
-        'chat_id' => $this->chatId,
-        'text' => $this->configs['globalExceptionRoute']['responce']['text'],
-      ];
-      new Request('sendMessage', $options);
+      // выпонить заданный код
+      $responce = $this->configs['exceptionTextMessage']['responce'];
+      $evalString = $this->configs['exceptionTextMessage']['forEval'];
+      $this->evalHandler($evalString, $responce);
       die();
     }
     /**

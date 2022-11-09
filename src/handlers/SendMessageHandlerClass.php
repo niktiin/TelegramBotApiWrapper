@@ -5,6 +5,7 @@
         'chat_id' => $chatId,
         'text' => $responce['text'],
       ];
+      // Установить клавиатуру если она указана
       isset($responce['keyboard']) && $options['reply_markup'] = json_encode([
         'keyboard' => $responce['keyboard']
       ]);

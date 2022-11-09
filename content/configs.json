@@ -3,7 +3,7 @@
     "/start" : {
       "responce": {
         "text": "Send me /get command!",
-        "keyboard": []
+        "keyboard": [["/start"], ["/help"], ["/get"]]
       },
       "forEval": "new SendMessageHandlerClass($chatId, $responce);"
     },
@@ -19,11 +19,18 @@
       "forEval": "new DebuggingHandlerClass($chatId, $handler->databaseConection);"
     }
   },
+  "exceptionTextMessage": {
+    "responce": {
+      "text": "I dont understand you, please send me /help",
+      "keyboard": [["/start"], ["/help"], ["/get"]]
+    },
+    "forEval": "new SendMessageHandlerClass($chatId, $responce);"
+  },
   "nextEntries": {
     "twoTapEntry": {
       "responce": {
         "text": "You tap two times!",
-        "keyboard": []
+        "keyboard": [["/start"], ["/help"]]
       },
       "forEval": "new SendMessageHandlerClass($chatId, $responce);"
     }
