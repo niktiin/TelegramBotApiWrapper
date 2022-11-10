@@ -1,33 +1,33 @@
 <?php
 
-  $files = glob('handlers/*.php');
+  $files = glob('src/handlers/*.php');
   foreach ($files as $file) {
       require_once($file);
   }
-  require_once('handlers/SendMessageHandlerClass.php');
-  require_once('handlers/DebuggingHandlerClass.php');
+
   class Handler {
-    private $configs, $pass, $contents, $message, $text, $databaseConection, $tableNameForNextEntry;
-    public $chatId;
+    private $configs, $pass, $databaseConection, $tableNameForNextEntry;
+    public $message;
+
     public function __construct() {
       $this->configs = json_decode(file_get_contents($GLOBALS['pathToConfigsFileName']), true);
       $this->pass = json_decode(file_get_contents($GLOBALS['pathToProtectionData']), true);
       $this->getContents();
       $this->connectDatabase();
     }
+
     /**
      * Заполнить свойства обьекта данными
      * из ответа telegram bot api
      */
     private function getContents() {
-      $this->contents = json_decode(
+      $contents = json_decode(
         file_get_contents("php://input"),
         true
       );
-      $this->message = $this->contents["message"];
-      $this->chatId = $this->message["chat"]["id"];
-      $this->text = $this->message["text"];
+      $this->message = new MessageClass($contents);
     }
+
     /**
      * Обработать исключение, если
      * обработчик не нашёл подходящий маршрут
@@ -39,6 +39,7 @@
       $this->evalHandler($evalString, $responce);
       die();
     }
+
     /**
      * Подключится к серверу
      * Проверить доступность базы данных
@@ -62,6 +63,7 @@
       $this->tableNameForNextEntry = $this->configs['database']['tableNameForNextEntry'];
       $this->createTableForIfNotExists($this->tableNameForNextEntry);
     }
+
     /**
      * Создать таблицу для вхождений если она не существует
      */
@@ -69,22 +71,24 @@
       $query = "CREATE TABLE IF NOT EXISTS `$tableName` ( `index` INT NOT NULL AUTO_INCREMENT , `chatId` VARCHAR(16) NOT NULL , `nextEntryData` JSON NOT NULL , PRIMARY KEY (`index`), UNIQUE `UNIQUE` (`chatId`)) ENGINE = InnoDB";
       $this->databaseConection->query($query);
     }
+
     /**
      * Добавить вхождение в базу данных
      * Перезаписать если повторяется
      */
     private function pushNextEntryToDatabase($nextEntryName) {
-      $nextEntry = json_encode($this->configs['nextEntries'][$nextEntryName]);
       $tableNameForNextEntry = $this->tableNameForNextEntry;
-      $chatId = $this->chatId;
+      $chatId = $this->message->chatId;
+      $nextEntry = json_encode($this->configs['nextEntries'][$nextEntryName]);
       $query = "INSERT INTO `$tableNameForNextEntry`(`chatId`, `nextEntryData`) VALUES ('$chatId', '$nextEntry') ON DUPLICATE KEY UPDATE `nextEntryData` = '$nextEntry'";
       $queryResult = $this->databaseConection->query($query);
     }
+
     /**
      * Выполнить код
      */
     private function evalHandler($evalString, $responce) {
-      $chatId = $this->chatId;
+      $chatId = $this->message->chatId;
       eval($evalString);
     }
     /**
@@ -98,10 +102,11 @@
       foreach ($this->configs['globalRoutes'] as $key => $value) {
         array_push($availableRoute, $key);
       }
-      $routeIndex = array_search($this->text, $availableRoute);
+      $text = $this->message->text;
+      $routeIndex = array_search($text, $availableRoute);
       $routeIndex === false && $this->handleExceptionTextMessage();
       // Найти обьект маршрута
-      $routeKey = array_keys($this->configs['globalRoutes'])[array_search($this->text, $availableRoute)];
+      $routeKey = array_keys($this->configs['globalRoutes'])[array_search($text, $availableRoute)];
       $nextEntryName = $this->configs['globalRoutes'][$routeKey]['nextEntryName'];
       isset($nextEntryName) && $this->pushNextEntryToDatabase($nextEntryName);
       // выпонить заданный код
@@ -115,8 +120,8 @@
      * Удалить вхождение
      */
     public function checkNextEntry() {
-      $chatId = $this->chatId;
       $tableNameForNextEntry = $this->tableNameForNextEntry;
+      $chatId = $this->message->chatId;
       $query = "SELECT * FROM `$tableNameForNextEntry` WHERE `chatId` = '$chatId'";
       $queryResult = $this->databaseConection->query($query);
       if ($queryResult->num_rows < 1) return false;

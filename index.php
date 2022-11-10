@@ -6,6 +6,7 @@ error_reporting(E_ALL);
 # REQUIRE FILE
 require_once('src/RequestClass.php');
 require_once('src/HandlerClass.php');
+require_once('src/MessageClass.php');
 
 # SET CONFIG PATH
 $GLOBALS['pathToProtectionData'] = 'content/pass.json';
@@ -29,7 +30,7 @@ try {
     # HANDLE ERROR, THIS EXAMPLE PRINTED ERROR TO CHAT
     $text = json_encode($e->getMessage(), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
     new Request('sendMessage', [
-        'chat_id' => $handler->chatId,
+        'chat_id' => '1050337296',
         'text' => '<code>' . $text . '</code>',
         'parse_mode' => 'HTML'
     ]);
