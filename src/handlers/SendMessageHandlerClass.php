@@ -1,6 +1,6 @@
 <?php
   class SendMessageHandlerClass {
-    public function __construct($chatId, $responce) {
+    public function __construct($chatId, $responce, $message) {
       $method = 'sendMessage';
       $options = [
         'chat_id' => $chatId,

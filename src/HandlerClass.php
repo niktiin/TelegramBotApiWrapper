@@ -112,7 +112,7 @@
       // выпонить заданный код
       $responce = $this->configs['globalRoutes'][$routeKey]['responce'];
       $evalString = $this->configs['globalRoutes'][$routeKey]['forEval'];
-      $this->evalHandler($evalString, $responce);
+      $this->evalHandler($evalString, $responce, $this->message);
     }
     /**
      * Найти вхождение
@@ -129,7 +129,7 @@
       // Выполнить код вхождения
       $responce = $nextEntry['responce'];
       $evalString = $nextEntry['forEval'];
-      $this->evalHandler($evalString, $responce);
+      $this->evalHandler($evalString, $responce, $this->message);
       // Удалить вхождение из базы данных
       $query = "DELETE FROM `tablefornextentry` WHERE `chatId` = '$chatId'";
       $this->databaseConection->query($query);
