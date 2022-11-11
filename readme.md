@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="./content/assets/logo.webp" />
+  <img src="./content/assets/logo.png" />
 </p>
 
 <h1 align="center">Обертка для Telegram Bot API</h1>
