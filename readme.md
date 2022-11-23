@@ -3,7 +3,6 @@
 </p>
 
 <h1 align="center">Обертка для Telegram Bot API</h1>
-<p align="center"><code>Упрощает и ускоряет запуск телеграм бота на PHP</code></p>
 
 <hr style="height: 1px;">
 

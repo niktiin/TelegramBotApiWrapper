@@ -88,6 +88,7 @@
      * Выполнить код
      */
     private function evalHandler($evalString, $responce) {
+      $message = $this->message;
       $chatId = $this->message->chatId;
       eval($evalString);
     }

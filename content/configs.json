@@ -9,7 +9,7 @@
           "url": "https://copyfx4.com/wp-content/uploads/2022/07/file-127.jpg"
         }
       },
-      "forEval": "new SendMessageHandlerClass($chatId, $responce);"
+      "forEval": "new SendMessageHandlerClass($chatId, $responce, $message);"
     },
     "/tap" : {
       "responce": {
@@ -17,7 +17,7 @@
         "keyboard": [[{"text": "tap"}]]
       },
       "nextEntryName": "twoTapEntry",
-      "forEval": "new SendMessageHandlerClass($chatId, $responce);"
+      "forEval": "new SendMessageHandlerClass($chatId, $responce, $message);"
     },
     "/debug" : {
       "forEval": "new DebuggingHandlerClass($chatId, $handler->databaseConection);"
@@ -28,7 +28,7 @@
       "text": "I dont understand you, please send me /help",
       "keyboard": [["/start"], ["/help"], ["/get"]]
     },
-    "forEval": "new SendMessageHandlerClass($chatId, $responce);"
+    "forEval": "new SendMessageHandlerClass($chatId, $responce, $message);"
   },
   "nextEntries": {
     "twoTapEntry": {
@@ -36,7 +36,7 @@
         "text": "You tap two times!",
         "keyboard": [["/start"], ["/help"]]
       },
-      "forEval": "new SendMessageHandlerClass($chatId, $responce);"
+      "forEval": "new SendMessageHandlerClass($chatId, $responce, $message);"
     }
   },
   "database": {
